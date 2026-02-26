@@ -1,4 +1,4 @@
-# polymarket
+# Polymarket
 
 Skill for researching Polymarket prediction markets via the `polymarket` CLI.
 
