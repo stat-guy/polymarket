@@ -1,6 +1,6 @@
 # polymarket
 
-Codex skill for researching Polymarket prediction markets via the `polymarket` CLI.
+Skill for researching Polymarket prediction markets via the `polymarket` CLI.
 
 This is an unofficial read-only research skill for event/market lookup, token ID discovery, holder analysis, wallet trade analysis workflows, and interactive price charts.
 
