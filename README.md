@@ -22,6 +22,21 @@ This is an unofficial read-only research skill for event/market lookup, token ID
 - Internet access (Polymarket APIs + Plotly CDN used by chart HTML)
 - A web browser available locally
 
+## Install `polymarket` CLI (macOS/Linux via Homebrew)
+
+If you installed with Homebrew (recommended on macOS/Linux), use:
+
+```bash
+brew tap Polymarket/polymarket-cli https://github.com/Polymarket/polymarket-cli
+brew install polymarket
+```
+
+Then verify:
+
+```bash
+polymarket --help
+```
+
 ## Install (Codex Skill)
 
 Clone this repository and place it in your Codex skills directory so the folder name is exactly `polymarket`:
@@ -50,6 +65,19 @@ The skill routes to:
 - `polymarket markets get <slug>` for markets
 
 If a slug is ambiguous, try event lookup first and fall back to market lookup on 404.
+
+## Examples and Docs
+
+- `examples/event-lookup.md`
+- `examples/chart-workflow.md`
+- `examples/wallet-analysis.md`
+- `docs/installation.md`
+- `docs/troubleshooting.md`
+
+## Development
+
+- Unit tests: `python3 -m unittest discover -s tests -p 'test_*.py' -v`
+- CI: GitHub Actions workflow in `.github/workflows/ci.yml`
 
 ## Core Workflows
 
