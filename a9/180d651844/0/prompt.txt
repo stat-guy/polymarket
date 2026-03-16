@@ -1,0 +1,177 @@
+<task-notification>
+<task-id>ab7fa498747d91d28</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-kairi-polymarket/6e86b477-ff35-44da-927a-b67ed687da73/tasks/ab7fa498747d91d28.output</output-file>
+<status>completed</status>
+<summary>Agent "Create market-researcher + leaderboard agents" completed</summary>
+<result>All four files are created and verified:
+
+- `/Users/kairi/polymarket/agents/market-researcher.md` (repo)
+- `/Users/kairi/polymarket/agents/leaderboard-discovery.md` (repo)
+- `/Users/kairi/.claude/skills/polymarket/agents/market-researcher.md` (installed skill)
+- `/Users/kairi/.claude/skills/polymarket/agents/leaderboard-discovery.md` (installed skill)
+
+Both agent prompt modules are in place with their frontmatter metadata, workflow steps, CLI gotchas, output format guidance, and suggested follow-ups.</result>
+<usage><total_tokens>12871</total_tokens><tool_uses>5</tool_uses><duration_ms>27556</duration_ms></usage>
+</task-notification>
+Full transcript available at: /private/tmp/claude-501/-Users-kairi-polymarket/6e86b477-ff35-44da-927a-b67ed687da73/tasks/ab7fa498747d91d28.output
+
+---
+
+<task-notification>
+<task-id>a61491b8892d70678</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-kairi-polymarket/6e86b477-ff35-44da-927a-b67ed687da73/tasks/a61491b8892d70678.output</output-file>
+<status>completed</status>
+<summary>Agent "Create whale-tracker + sports agents" completed</summary>
+<result>All 4 files created:
+
+1. `/Users/kairi/.claude/skills/polymarket/agents/whale-tracker.md`
+2. `/Users/kairi/.claude/skills/polymarket/agents/sports-markets.md`
+3. `/Users/kairi/polymarket/agents/whale-tracker.md`
+4. `/Users/kairi/polymarket/agents/sports-markets.md`
+
+The **whale-tracker** agent (green) covers wallet profiling, PnL calculation, infrastructure wallet detection, and trader classification. The **sports-markets** agent (red) covers discovering sports prediction markets by league, team, or sport with tag mapping and matchup table output.</result>
+<usage><total_tokens>15629</total_tokens><tool_uses>5</tool_uses><duration_ms>46401</duration_ms></usage>
+</task-notification>
+Full transcript available at: /private/tmp/claude-501/-Users-kairi-polymarket/6e86b477-ff35-44da-927a-b67ed687da73/tasks/a61491b8892d70678.output
+
+---
+
+<task-notification>
+<task-id>a53cd8e452a89a456</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-kairi-polymarket/6e86b477-ff35-44da-927a-b67ed687da73/tasks/a53cd8e452a89a456.output</output-file>
+<status>completed</status>
+<summary>Agent "Create deep-dive + price-chart agents" completed</summary>
+<result>All 4 files created:
+
+1. `/Users/kairi/.claude/skills/polymarket/agents/market-deep-dive.md`
+2. `/Users/kairi/.claude/skills/polymarket/agents/price-chart.md`
+3. `/Users/kairi/polymarket/agents/market-deep-dive.md`
+4. `/Users/kairi/polymarket/agents/price-chart.md`
+
+Both agent prompt modules are written to both the skill location (`~/.claude/skills/polymarket/agents/`) and the repo location (`/Users/kairi/polymarket/agents/`). The `market-deep-dive` agent covers full single-market analysis (price, order book, holders, OI, sentiment) and the `price-chart` agent handles interactive Plotly chart generation with input resolution from URLs, slugs, condition IDs, or token IDs.</result>
+<usage><total_tokens>16784</total_tokens><tool_uses>5</tool_uses><duration_ms>52311</duration_ms></usage>
+</task-notification>
+Full transcript available at: /private/tmp/claude-501/-Users-kairi-polymarket/6e86b477-ff35-44da-927a-b67ed687da73/tasks/a53cd8e452a89a456.output
+
+---
+
+<task-notification>
+<task-id>a14c7f6ee26675765</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-kairi-polymarket/6e86b477-ff35-44da-927a-b67ed687da73/tasks/a14c7f6ee26675765.output</output-file>
+<status>completed</status>
+<summary>Agent "Find past polymarket requests" completed</summary>
+<result>Perfect! Now let me compile all the findings. Let me create a comprehensive summary with all the specific test queries found:
+
+Based on my thorough search through the ~/.claude/ conversation transcripts and the polymarket project files, here are the past polymarket skill invocations and specific queries the user has made for testing:
+
+## Summary of Past Polymarket Queries
+
+### Event/Market Slugs Used
+1. **`democratic-presidential-nominee-2028`** - Used extensively in examples and tests for event lookup workflows
+2. **Generic/Example slugs** - referenced throughout agent documentation but the main concrete example is the presidential market
+
+### Wallet Addresses Used for Testing
+Several wallet addresses appear in the conversation transcripts for whale-tracker and profile testing:
+
+1. `0x3E5b23e9F71B2a2EDCd5629D3F948F12f591073B` - Used as example for data positions, closed-positions, activity, and trades
+2. `0x02227B8f5a9636e895607EDD3185ED6ee5598fF7` - Referenced in position data tests
+3. `0xa5Ef39C3D3e10d0B270233af41CaC69796B12966` - **Known infrastructure/escrow wallet** (Polymarket neg-risk escrow, ~$11.9B) - used as test case for infrastructure detection logic
+4. Additional wallet addresses from test data:
+   - `0x0f49db97f71c68b1e42a6d16e3de93d85dbf7d4148e3f018eb79e88554be9f75` (token ID context)
+   - `0x78909be786ca641eac4e1f16701766f519e2d4725384ee125b99905b468432e5` (order book testing)
+
+### Token IDs (Hex Format - Both CLOB Market and Book Examples)
+- `0x0f49db97f71c68b1e42a6d16e3de93d85dbf7d4148e3f018eb79e88554be9f75` - Used for CLOB market and data holders testing
+- `0x78909be786ca641eac4e1f16701766f519e2d4725384ee125b99905b468432e5` - Used for CLOB order book testing
+
+### CLI Commands Tested (from verification sessions)
+The user ran comprehensive CLI tests including:
+
+- `polymarket -o json events get democratic-presidential-nominee-2028` - Event structure validation
+- `polymarket -o json data leaderboard --period week --order-by pnl --limit 2` - Leaderboard shape testing
+- `polymarket -o json data positions <WALLET> --limit 2` - Position data structure
+- `polymarket -o json data closed-positions <WALLET> --limit 2` - Closed position structure
+- `polymarket -o json data activity <WALLET> --limit 2` - Activity entry shape
+- `polymarket -o json clob market <CONDITION_ID>` - CLOB market structure with token IDs
+- `polymarket -o json clob book <TOKEN_ID>` - Order book bid/ask structure
+- `polymarket -o json data holders <CONDITION_ID>` - Holders grouped by token
+- `polymarket -o json sports list` - Sports league discovery
+- `polymarket -o json data leaderboard --period all --order-by pnl --limit 20` - Top traders test
+- `polymarket -o json markets list --order volumeNum --active true --limit 20` - Trending markets (camelCase ordering)
+- `polymarket -o json events list --order volume --active true --limit 20` - Trending events
+- `polymarket -o json tags related-tags "<topic>"` - Tag discovery workflow
+- `polymarket markets search "<query>" --limit 20` - Market search (no --order flag)
+- `polymarket -o json data builder-leaderboard --limit 20` - Builder leaderboard testing
+- `polymarket -o json data trades <WALLET> --limit 500` - Trade history for cost-basis analysis
+- `polymarket -o json clob spread <TOKEN_ID>` - Spread data
+- `polymarket -o json clob midpoint <TOKEN_ID>` - Midpoint pricing
+- `polymarket -o json comments list <CONDITION_ID> --limit 20` - Community sentiment
+
+### Key Test Files
+- `/Users/kairi/polymarket/examples/event-lookup.md`
+- `/Users/kairi/polymarket/examples/wallet-analysis.md`
+- `/Users/kairi/polymarket/examples/chart-workflow.md`
+- Agent documentation under `/Users/kairi/polymarket/agents/` (6 agent modules)
+
+### Important v0.1.5 Findings Verified
+- Hex token IDs work everywhere (no decimal conversion needed)
+- `markets list --order volumeNum` works (camelCase required)
+- `events list --order volume` works (descending default)
+- `markets search` has NO `--order` flag
+- `outcomePrices` is a JSON string that must be parsed
+- Infrastructure wallet detection: `0xa5Ef39C3D3e10d0B270233af41CaC69796B12966` used as reference case
+
+All files are located at absolute paths:
+- `/Users/kairi/polymarket/examples/`
+- `/Users/kairi/polymarket/agents/`
+- `/Users/kairi/polymarket/SKILL.md`
+- `/Users/kairi/.claude/projects/-Users-kairi-polymarket/` (conversation transcripts)</result>
+<usage><total_tokens>84925</total_tokens><tool_uses>28</tool_uses><duration_ms>67101</duration_ms></usage>
+</task-notification>
+Full transcript available at: /private/tmp/claude-501/-Users-kairi-polymarket/6e86b477-ff35-44da-927a-b67ed687da73/tasks/a14c7f6ee26675765.output
+
+---
+
+<task-notification>
+<task-id>a20fc80807718a855</task-id>
+<tool-use-id>toolu_017DzXJjxsEsH5dDo3cjxrQ8</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-kairi-polymarket/6e86b477-ff35-44da-927a-b67ed687da73/tasks/a20fc80807718a855.output</output-file>
+<status>completed</status>
+<summary>Agent "Enhance chart.py and polymarket.py" completed</summary>
+<result>All three files are updated correctly. Here is a summary of what was done:
+
+**Task 1 -- chart.py (both locations)**
+
+Enhanced both versions with:
+- `resolve_token_id()` function that chains slug -> conditionId -> tokenId via subprocess calls to the polymarket CLI
+- `--slug` flag to resolve from event/market slug
+- `--condition-id` flag to resolve from conditionId
+- `--outcome` flag (default "Yes") to select which outcome token
+- `--no-open` flag to skip browser opening
+- `token_id` positional argument made optional (`nargs='?'`) when `--slug` or `--condition-id` is provided
+- Updated help text noting hex IDs work in v0.1.5+
+
+Browser-opening difference preserved:
+- `/Users/kairi/.claude/skills/polymarket/chart.py` -- uses `os.system(f"open '{temp_path}'")`
+- `/Users/kairi/polymarket/scripts/chart.py` -- uses `webbrowser.open_new_tab()` with `Path.as_uri()`
+
+**Task 2 -- polymarket.py (installed skill only)**
+
+Replaced `sys.argv` parsing with argparse and added:
+- `--json` flag (`dest="raw_json"`) for raw JSON output instead of formatted summaries
+- `--chart` flag that auto-chains into chart.py using `--condition-id` from the first result
+- Extracted formatting logic into `_format_event_output()`, `_format_search_output()`, and `_print_market_summary()` helper functions
+- Added `import argparse`, `import os` (for `os.system` chart invocation)
+
+Written to `/Users/kairi/.claude/skills/polymarket/polymarket.py` only (no repo equivalent).</result>
+<usage><total_tokens>34591</total_tokens><tool_uses>8</tool_uses><duration_ms>135670</duration_ms></usage>
+</task-notification>
+Full transcript available at: /private/tmp/claude-501/-Users-kairi-polymarket/6e86b477-ff35-44da-927a-b67ed687da73/tasks/a20fc80807718a855.output
+
+---
+
+/polymarket https://polymarket.com/event/2026-ncaa-tournament-winner#4xX25fiW tell me the latest about this market in the last week. Which teams are trending up or down. Who are the top 8 favorites based on yes percentage and then based on yes dollars bet. How much has the volume of the market increased in the last week
