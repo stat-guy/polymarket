@@ -1,70 +1,94 @@
 # Polymarket
 
-Skill for researching Polymarket prediction markets via the `polymarket` CLI.
+Claude Code skill for researching Polymarket prediction markets via the `polymarket` CLI.
 
-This is an unofficial read-only research skill for event/market lookup, token ID discovery, holder analysis, wallet trade analysis workflows, and interactive price charts.
+This is an unofficial read-only research skill with an orchestrator + 6 specialized agent architecture for event/market lookup, wallet analysis, price charting, leaderboard discovery, and sports market browsing.
+
+## Architecture
+
+```
+SKILL.md (orchestrator)
+├── agents/market-researcher.md    — Topic → market comparison tables
+├── agents/market-deep-dive.md     — Single market → full analysis report
+├── agents/whale-tracker.md        — Wallet → trader profile + PnL
+├── agents/price-chart.md          — Any input → interactive Plotly chart
+├── agents/leaderboard-discovery.md — Trending markets + top traders
+├── agents/sports-markets.md       — League/team → sports market discovery
+├── scripts/chart.py               — Chart generator (--slug, --condition-id, --no-open)
+└── polymarket.py (skill)          — CLI wrapper with --json, --chart flags
+```
+
+The orchestrator SKILL.md classifies user intent and dispatches to the matched agent's workflow. Each agent is a prompt module with step-by-step CLI instructions.
 
 ## What It Does
 
-- Look up Polymarket events and outcome markets
-- Look up individual binary markets
-- Convert from `condition_id` context to decimal CLOB `token_id`
-- Generate interactive HTML price charts with time-window tabs
-- Find top YES/NO holders for a market
-- Analyze wallet trades for cost-basis workflows
-- Document common Polymarket CLI gotchas
+- Discover markets by topic, tag, or category (market-researcher)
+- Full single-market analysis with order book, holders, OI, sentiment (market-deep-dive)
+- Wallet profiling with PnL, positions, win rate, infrastructure detection (whale-tracker)
+- Interactive HTML price charts with 8 time-window tabs (price-chart)
+- Trending markets and top trader leaderboards (leaderboard-discovery)
+- Sports market discovery by league, team, or matchup (sports-markets)
+- Multi-agent chaining: one workflow suggests the next
 
 ## Prerequisites
 
-- Codex local skills support
-- `polymarket` CLI installed and on `PATH`
+- `polymarket` CLI v0.1.5+ installed and on `PATH`
 - Python 3.9+
-- Internet access (Polymarket APIs + Plotly CDN used by chart HTML)
+- Internet access (Polymarket APIs + Plotly CDN)
 - A web browser available locally
 
 ## Install `polymarket` CLI (macOS/Linux via Homebrew)
-
-If you installed with Homebrew (recommended on macOS/Linux), use:
 
 ```bash
 brew tap Polymarket/polymarket-cli https://github.com/Polymarket/polymarket-cli
 brew install polymarket
 ```
 
-Then verify:
+Verify: `polymarket --help`
+
+## Install (Claude Code Skill)
 
 ```bash
-polymarket --help
-```
-
-## Install (Codex Skill)
-
-Clone this repository and place it in your Codex skills directory so the folder name is exactly `polymarket`:
-
-```bash
-git clone https://github.com/stat-guy/polymarket.git ~/.codex/skills/polymarket
+# Clone to Claude Code skills directory
+git clone https://github.com/stat-guy/polymarket.git ~/.claude/skills/polymarket
 ```
 
 Expected files:
-
-- `~/.codex/skills/polymarket/SKILL.md`
-- `~/.codex/skills/polymarket/scripts/chart.py`
+- `~/.claude/skills/polymarket/SKILL.md`
+- `~/.claude/skills/polymarket/agents/*.md` (6 agent files)
+- `~/.claude/skills/polymarket/chart.py`
+- `~/.claude/skills/polymarket/polymarket.py`
 
 ## Quick Start
 
-Use the skill with:
+Use `/polymarket` with any of these input types:
 
-- An event URL (contains `/event/`)
-- A market URL (contains `/market/`)
-- An event slug
-- A market slug
+| Input | Routes To |
+|-------|-----------|
+| Event URL (`/event/` in URL) | Quick event lookup |
+| Market URL (`/market/` in URL) | Quick market lookup |
+| Topic ("what markets about AI?") | market-researcher agent |
+| Wallet address (0x...) | whale-tracker agent |
+| "chart" / "price history" | price-chart agent |
+| "trending" / "leaderboard" | leaderboard-discovery agent |
+| Sport/league name (NBA, NFL...) | sports-markets agent |
+| Market + "analyze" / "deep dive" | market-deep-dive agent |
 
-The skill routes to:
+## Chart Generation
 
-- `polymarket events get <slug>` for events
-- `polymarket markets get <slug>` for markets
+```bash
+# From token ID
+python3 scripts/chart.py <TOKEN_ID> --title "Market YES"
 
-If a slug is ambiguous, try event lookup first and fall back to market lookup on 404.
+# From slug (auto-resolves)
+python3 scripts/chart.py --slug democratic-presidential-nominee-2028 --outcome "Gavin Newsom"
+
+# From condition ID
+python3 scripts/chart.py --condition-id 0xabc123 --outcome No
+
+# Skip browser open
+python3 scripts/chart.py --slug my-market --no-open
+```
 
 ## Examples and Docs
 
@@ -79,97 +103,28 @@ If a slug is ambiguous, try event lookup first and fall back to market lookup on
 - Unit tests: `python3 -m unittest discover -s tests -p 'test_*.py' -v`
 - CI: GitHub Actions workflow in `.github/workflows/ci.yml`
 
-## Core Workflows
+## Important Gotchas (v0.1.5)
 
-### 1. Event Lookup
-
-```bash
-polymarket -o json events get <slug>
-```
-
-Use this to retrieve event metadata and the `markets` array (outcomes). Note that `outcomePrices` is a JSON string and must be parsed.
-
-### 2. Market Lookup
-
-```bash
-polymarket -o json markets get <slug>
-```
-
-Returns a single binary market with price/volume/liquidity fields.
-
-### 3. Get Decimal Token ID (Required for CLOB queries and charting)
-
-```bash
-polymarket -o json clob market <CONDITION_ID>
-```
-
-Read `tokens[].token_id` from the output. Use the decimal token ID, not hex.
-
-### 4. Generate Interactive Price Chart
-
-From the repo root (or installed skill path):
-
-```bash
-python3 scripts/chart.py <DECIMAL_TOKEN_ID> --title "Market Name YES"
-```
-
-The script:
-
-- Fetches recent high-resolution price history
-- Fetches a full-history series (`--fidelity 5000`)
-- Merges them into one timeline
-- Writes an HTML file
-- Opens it in your browser
-
-Chart UI includes tabs for `1H`, `6H`, `1D`, `1W`, `1M`, `3M`, `6M`, and `All`.
-
-### 5. Top Holders
-
-```bash
-polymarket -o json data holders <CONDITION_ID>
-```
-
-- `outcome_index: 0` = YES
-- `outcome_index: 1` = NO
-
-### 6. Wallet Trade Analysis / Cost Basis Workflow
-
-```bash
-polymarket -o json data trades <WALLET_ADDRESS> --limit 500
-```
-
-Filter trades by `condition_id`, then compute:
-
-- Total cost: `sum(size * price)` over BUY trades
-- Total shares: `sum(size)`
-- Average price: `total_cost / total_shares`
-- Current value: `shares_held * current_price`
-- Win payout: `shares_held * 1.00`
-
-## Important Gotchas
-
-- Use `events get` vs `markets get` based on URL path (`/event/` vs `/market/`)
-- `outcomePrices` from event output is a JSON string
-- Token IDs for CLOB commands must be decimal, not hex
-- `markets search` is more useful than `markets list` for top-volume discovery
-- `--order` uses camelCase (`volumeNum`)
+- Hex token IDs now work everywhere (price, spread, book, price-history)
+- `events list --order volume` works, descending by default
+- `markets list --order volumeNum` works (camelCase required; `volume_num` → 422)
+- `markets search` has NO `--order` flag — sort results manually
+- `outcomePrices` from event output is a JSON string — must `json.loads()`
+- YES prices across outcomes sum to ~1.01 (1% house vig)
+- Holders data grouped by token with `name`/`pseudonym` fields
 
 ## Troubleshooting
 
-- `polymarket: command not found`
-  - Install the `polymarket` CLI and ensure it is on `PATH`.
-- 404 on lookup
-  - You likely used `events get` for a market slug (or vice versa).
-- `Error: No price history returned`
-  - Confirm the token ID is a decimal CLOB token ID.
-- Browser does not open automatically
-  - Open the printed local `.html` path manually.
+- `polymarket: command not found` — Install CLI and ensure it's on PATH
+- 404 on lookup — Wrong command: use `events get` for `/event/` URLs, `markets get` for `/market/`
+- No price history — Confirm the token ID is valid
+- Browser won't open — Open the printed `.html` path manually, or use `--no-open`
 
 ## Security / Safety Notes
 
-- This repository does not trade or place orders.
-- Do not paste private keys or secrets into prompts/commands.
-- Wallet analysis is for public on-chain activity and may include infrastructure wallets.
+- This repository does not trade or place orders
+- Do not paste private keys or secrets into prompts/commands
+- Wallet analysis is for public on-chain activity and may include infrastructure wallets
 
 ## Disclaimer
 
