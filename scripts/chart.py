@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 Polymarket price chart generator.
-Usage: python3 chart.py <DECIMAL_TOKEN_ID> [--title "Market Name"]
+Usage: python3 chart.py [TOKEN_ID] [--slug SLUG] [--condition-id CID] [--outcome Yes] [--title "Market Name"] [--no-open]
+
+As of v0.1.5, hex token IDs are also accepted by the CLI.
 """
 
 import argparse
@@ -11,6 +13,83 @@ import sys
 import tempfile
 import webbrowser
 from pathlib import Path
+
+
+def resolve_token_id(slug=None, condition_id=None, outcome="Yes"):
+    """Resolve a slug or condition_id to a token_id.
+
+    Chain: slug → events get → conditionId → clob market → token_id
+    """
+    if slug:
+        # Try events get first, fall back to markets get
+        for cmd_type in ["events", "markets"]:
+            cmd = ["polymarket", "-o", "json", cmd_type, "get", slug]
+            try:
+                result = subprocess.run(cmd, capture_output=True, text=True)
+                if result.returncode == 0:
+                    data = json.loads(result.stdout)
+                    if cmd_type == "events":
+                        # Get conditionId from first market or matching outcome
+                        markets = data.get("markets", [])
+                        if not markets:
+                            continue
+                        # Find matching outcome or use first market
+                        for m in markets:
+                            q = m.get("question", "").lower()
+                            outcomes_raw = m.get("outcomes", "[]")
+                            outcomes = json.loads(outcomes_raw) if isinstance(outcomes_raw, str) else outcomes_raw
+                            if outcome.lower() in q or outcome.lower() in [o.lower() for o in (outcomes if isinstance(outcomes, list) else [])]:
+                                condition_id = m.get("conditionId")
+                                break
+                        if not condition_id:
+                            condition_id = markets[0].get("conditionId")
+                    else:
+                        condition_id = data.get("conditionId")
+                    if condition_id:
+                        break
+            except (subprocess.SubprocessError, json.JSONDecodeError, KeyError):
+                continue
+
+        if not condition_id:
+            print(f"Error: Could not resolve slug '{slug}' to a conditionId.", file=sys.stderr)
+            sys.exit(1)
+
+    if not condition_id:
+        print("Error: No condition_id available for token resolution.", file=sys.stderr)
+        sys.exit(1)
+
+    # Resolve conditionId → tokenId
+    cmd = ["polymarket", "-o", "json", "clob", "market", condition_id]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+    except FileNotFoundError:
+        print("Error: 'polymarket' CLI not found.", file=sys.stderr)
+        sys.exit(1)
+
+    if result.returncode != 0:
+        print(f"Error resolving condition_id '{condition_id}':", file=sys.stderr)
+        print(result.stderr or result.stdout, file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        data = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        print("Error: CLI returned non-JSON for clob market.", file=sys.stderr)
+        sys.exit(1)
+
+    tokens = data.get("tokens", [])
+    if not tokens:
+        print(f"Error: No tokens found for condition_id '{condition_id}'.", file=sys.stderr)
+        sys.exit(1)
+
+    # Find matching outcome token
+    for token in tokens:
+        if token.get("outcome", "").lower() == outcome.lower():
+            return token["token_id"]
+
+    # Default to first token
+    print(f"Note: Outcome '{outcome}' not found, using first token ({tokens[0].get('outcome', 'unknown')}).", file=sys.stderr)
+    return tokens[0]["token_id"]
 
 
 def fetch_price_history(token_id: str, fidelity: int = None) -> list:
@@ -49,7 +128,7 @@ def fetch_price_history(token_id: str, fidelity: int = None) -> list:
 
     if len(data) == 0:
         print(f"Error: No price history returned for token ID {token_id}.", file=sys.stderr)
-        print("Verify the token ID is correct (decimal integer, not hex).", file=sys.stderr)
+        print("Verify the token ID is correct (decimal or hex IDs work in v0.1.5+).", file=sys.stderr)
         sys.exit(1)
 
     return data
@@ -238,20 +317,44 @@ def main():
 Examples:
   python3 chart.py 21742633143463906290569050155826241533067272736897614950488156847949938836455
   python3 chart.py 12345678 --title "Candidate YES"
+  python3 chart.py --slug democratic-presidential-nominee-2028
+  python3 chart.py --condition-id 0xabc123... --outcome No
+  python3 chart.py --slug my-market --no-open
+
+Note: As of v0.1.5, hex token IDs are also accepted.
         """
     )
-    parser.add_argument("token_id", help="Decimal token ID (NOT hex). Get via: polymarket -o json clob market <CONDITION_ID>")
-    parser.add_argument("--title", default="Polymarket Price Chart", help="Chart title (default: 'Polymarket Price Chart')")
+    parser.add_argument("token_id", nargs='?', default=None,
+                        help="Token ID (decimal or hex in v0.1.5+). Optional if --slug or --condition-id provided.")
+    parser.add_argument("--slug", default=None,
+                        help="Event or market slug — resolves slug -> conditionId -> tokenId")
+    parser.add_argument("--condition-id", default=None,
+                        help="Condition ID — resolves conditionId -> tokenId")
+    parser.add_argument("--outcome", default="Yes",
+                        help="Outcome to select from tokens array (default: 'Yes')")
+    parser.add_argument("--title", default="Polymarket Price Chart",
+                        help="Chart title (default: 'Polymarket Price Chart')")
+    parser.add_argument("--no-open", action="store_true",
+                        help="Skip opening browser, just print the file path")
     args = parser.parse_args()
 
-    print(f"Fetching price history for token {args.token_id}...")
+    # Validate: need at least one of token_id, --slug, --condition-id
+    if not args.token_id and not args.slug and not args.condition_id:
+        parser.error("Provide a token_id, --slug, or --condition-id")
+
+    # Resolve token_id if not directly provided
+    token_id = args.token_id
+    if not token_id:
+        token_id = resolve_token_id(slug=args.slug, condition_id=args.condition_id, outcome=args.outcome)
+
+    print(f"Fetching price history for token {token_id}...")
 
     print("  Fetching high-resolution data...")
-    high_res = fetch_price_history(args.token_id)
+    high_res = fetch_price_history(token_id)
     print(f"  Got {len(high_res)} high-res points")
 
     print("  Fetching full history (fidelity=5000)...")
-    full_history = fetch_price_history(args.token_id, fidelity=5000)
+    full_history = fetch_price_history(token_id, fidelity=5000)
     print(f"  Got {len(full_history)} full-history points")
 
     print("Merging histories...")
@@ -272,11 +375,12 @@ Examples:
         temp_path = f.name
 
     print(f"Chart saved to: {temp_path}")
-    print("Opening in browser...")
-    chart_uri = Path(temp_path).resolve().as_uri()
-    opened = webbrowser.open_new_tab(chart_uri)
-    if not opened:
-        print(f"Open this file manually in a browser: {temp_path}")
+    if not args.no_open:
+        print("Opening in browser...")
+        chart_uri = Path(temp_path).resolve().as_uri()
+        opened = webbrowser.open_new_tab(chart_uri)
+        if not opened:
+            print(f"Open this file manually in a browser: {temp_path}")
 
 
 if __name__ == "__main__":
