@@ -17,13 +17,14 @@ Find Polymarket prediction markets for sports — by league, team, or upcoming m
 
 ## Workflow
 
-### Step 1: List Available Sports/Leagues
+### Step 1: Identify Sport Tag (pre-loaded — no tool call needed)
 
+The orchestrator's SKILL.md pre-injects the live sports tag list at invocation time using the `!`command`` shell injection syntax. Use that pre-loaded context to identify the correct tag for the user's sport/league — **do not call `polymarket sports list` again**.
+
+If for some reason the pre-loaded context is missing, fall back to:
 ```bash
 polymarket -o json sports list
 ```
-
-Returns available sports with their tags and metadata.
 
 ### Step 2: Get Teams for a League
 
@@ -73,15 +74,12 @@ Present as a matchup table:
 
 ## Sport-to-Tag Mapping
 
-Common mappings (verify with `sports list`):
-- NBA → `nba`
-- NFL → `nfl`
-- MLB → `mlb`
-- NHL → `nhl`
-- EPL/Premier League → `epl` or `premier-league`
-- UFC/MMA → `ufc`
-- F1 → `f1`
-- Soccer/Football → `soccer`
+Use the **pre-loaded live sports tags** from SKILL.md context (injected at invocation time). Common well-known mappings for reference:
+- NBA → `nba`, NFL → `nfl`, MLB → `mlb`, NHL → `nhl`
+- EPL/Premier League → `epl`, UFC/MMA → `ufc`, F1 → `fl1`
+- ATP/WTA tennis → `atp`/`wta`, MLS → `mls`, esports → `lol`, `cs2`, `dota2`
+
+**Always prefer the live injected list over these static mappings** — new sports/leagues are added regularly.
 
 ## CLI Gotchas
 

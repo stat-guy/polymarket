@@ -16,6 +16,14 @@ Research Polymarket prediction markets via 6 specialized agent workflows. This o
 - Internet access (Polymarket APIs and Plotly CDN)
 - A browser available to open generated chart HTML
 
+## Pre-loaded Context
+
+The following dynamic data is injected at skill load time using the `!`command`` shell injection syntax (no tool call needed):
+
+**Live sports tags:** !`polymarket -o json sports list 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(', '.join(x['sport'] for x in d))"`
+
+Use these tags directly for sports routing — do NOT call `polymarket sports list` again, the live data is already above.
+
 ## Intent Classification
 
 Classify the user's input and Read the matched agent file, then follow its workflow step-by-step.
@@ -36,7 +44,7 @@ Classify the user's input and Read the matched agent file, then follow its workf
 2. **Wallet detection**: If input matches `0x[a-fA-F0-9]{40}`, route to whale-tracker
 3. **Chart keywords**: If input contains "chart", "graph", "visualize", "price history", route to price-chart
 4. **Discovery keywords**: If input contains "trending", "leaderboard", "top traders", "popular", "what's hot", route to leaderboard-discovery
-5. **Sport keywords**: If input mentions NBA, NFL, MLB, NHL, EPL, UFC, F1, MMA, Premier League, or team names, route to sports-markets
+5. **Sport keywords**: If input mentions any sport, league, or team name, match against the pre-loaded live sports tags above — route to sports-markets
 6. **Analysis keywords**: If input includes "analyze", "deep dive", "breakdown", "full analysis" alongside a market, route to market-deep-dive
 7. **Default**: Route to market-researcher for topic-based discovery
 
@@ -77,6 +85,26 @@ After completing one agent's workflow, suggest these follow-ups:
 | whale-tracker | market-deep-dive (largest position) |
 | price-chart | market-deep-dive (full analysis) |
 | sports-markets | price-chart (specific matchup), market-deep-dive |
+
+## Shell Injection Technique
+
+Claude Code supports `!`command`` syntax in SKILL.md files. When the skill is invoked, Claude Code runs the command and swaps the placeholder with its output — the model only sees the result, not the raw command. This eliminates extra tool-call roundtrips for predictable data fetching.
+
+**When to use:**
+- Data that is always fetched at the start of an agent workflow (e.g., sports list for sports routing)
+- Lightweight, broadly useful context that improves intent classification
+- Any dynamic content the skill depends on that would otherwise require a Bash tool call
+
+**When NOT to use:**
+- Heavy data only needed for specific query types (e.g., full leaderboard — only inject if this skill exclusively serves trending queries)
+- Data that depends on user-provided arguments (e.g., specific market slugs or wallet addresses)
+- Commands that take >1–2s to run (adds latency to every skill invocation)
+
+**Example (from this skill):**
+
+The "Pre-loaded Context" section above uses `!` followed by a backtick-quoted shell command that pipes `polymarket sports list` through python to extract sport tags.
+
+This eliminates the `polymarket sports list` tool call that would otherwise be Step 1 of the sports-markets agent workflow.
 
 ## Global CLI Reference
 
