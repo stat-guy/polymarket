@@ -1,0 +1,5 @@
+so there appears to be a better way to reduce the number of roundtrips taken when using skills please look at the attached images then look at our <~/.claude/skills/polymarket> skill and see how the documentation can be updated to reflect this new insight
+
+---
+
+so there appears to be a better way to reduce the number of roundtrips taken when using skills please look at the attached images then look at our <~/.claude/skills/polymarket> skill and see how the documentation can be updated to reflect this new insight

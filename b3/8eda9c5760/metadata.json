@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.5.0",
+  "checkpoint_id": "b38eda9c5760",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "SKILL.md",
+    "agents/sports-markets.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/b3/8eda9c5760/0/metadata.json",
+      "transcript": "/b3/8eda9c5760/0/full.jsonl",
+      "content_hash": "/b3/8eda9c5760/0/content_hash.txt",
+      "prompt": "/b3/8eda9c5760/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 39,
+    "cache_creation_tokens": 49825,
+    "cache_read_tokens": 1413191,
+    "output_tokens": 11635,
+    "api_call_count": 37
+  }
+}
