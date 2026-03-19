@@ -20,6 +20,21 @@ SKILL.md (orchestrator)
 
 The orchestrator SKILL.md classifies user intent and dispatches to the matched agent's workflow. Each agent is a prompt module with step-by-step CLI instructions.
 
+### Shell Injection Pre-loading
+
+The orchestrator uses Claude Code's `!`command`` syntax to inject live data at skill load time — before any tool call is made. Six things are pre-loaded on every invocation:
+
+| Injection | Command | Eliminates |
+|-----------|---------|-----------|
+| CLI health check | `which polymarket && polymarket --version` | Manual env debugging |
+| Current UTC time | `date -u` | Time-context tool call |
+| Sports tags | `polymarket sports list` | sports-markets Step 1 |
+| Trending events (top 10) | `polymarket events list --order volume` | leaderboard Step 2 |
+| Trending markets (top 10) | `polymarket markets list --order volumeNum` | leaderboard Step 3 |
+| Weekly leaderboard (top 10) | `polymarket data leaderboard --period week` | leaderboard Step 1 |
+
+For trending/leaderboard queries this eliminates all 3 data-fetch steps. For sports queries it eliminates the league-lookup step. Total overhead: ~1s across all injections.
+
 ## What It Does
 
 - Discover markets by topic, tag, or category (market-researcher)
