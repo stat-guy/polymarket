@@ -20,6 +20,12 @@ Research Polymarket prediction markets via 6 specialized agent workflows. This o
 
 The following dynamic data is injected at skill load time via `!`command`` shell injection — no tool call needed. Use it directly; do NOT re-fetch the same data with a Bash tool call.
 
+### Environment
+- CLI status: !`which polymarket 2>/dev/null && polymarket --version 2>/dev/null || echo "ERROR: polymarket CLI not found on PATH"`
+- Current UTC time: !`date -u +"%Y-%m-%dT%H:%M:%SZ"`
+
+If the CLI status shows an error, stop and tell the user to install the `polymarket` CLI before proceeding.
+
 ### Sports Tags (for routing)
 **Live sports tags:** !`polymarket -o json sports list 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(', '.join(x['sport'] for x in d))"`
 
