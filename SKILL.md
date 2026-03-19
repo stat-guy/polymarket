@@ -18,11 +18,23 @@ Research Polymarket prediction markets via 6 specialized agent workflows. This o
 
 ## Pre-loaded Context
 
-The following dynamic data is injected at skill load time using the `!`command`` shell injection syntax (no tool call needed):
+The following dynamic data is injected at skill load time via `!`command`` shell injection — no tool call needed. Use it directly; do NOT re-fetch the same data with a Bash tool call.
 
+### Sports Tags (for routing)
 **Live sports tags:** !`polymarket -o json sports list 2>/dev/null | python3 -c "import sys,json; d=json.load(sys.stdin); print(', '.join(x['sport'] for x in d))"`
 
-Use these tags directly for sports routing — do NOT call `polymarket sports list` again, the live data is already above.
+Use these tags for sports intent classification and routing to sports-markets agent.
+
+### Trending Events — Top 10 by Volume (for leaderboard/discovery queries)
+!`polymarket -o json events list --order volume --active true --limit 10 2>/dev/null | python3 -c "import sys,json; [print(f'{i+1}. {e[\"title\"]} | vol:\${float(e.get(\"volume\",0))/1e6:.1f}M | slug:{e[\"slug\"]}') for i,e in enumerate(json.load(sys.stdin))]"`
+
+### Trending Markets — Top 10 by Volume (individual binary markets)
+!`polymarket -o json markets list --order volumeNum --active true --limit 10 2>/dev/null | python3 -c "import sys,json; [print(f'{i+1}. {m[\"question\"]} | vol:\${float(m.get(\"volumeNum\",0))/1e6:.1f}M | slug:{m[\"slug\"]}') for i,m in enumerate(json.load(sys.stdin))]"`
+
+### Top Traders Leaderboard — This Week by PnL
+!`polymarket -o json data leaderboard --period week --order-by pnl --limit 10 2>/dev/null | python3 -c "import sys,json; [print(f'{t[\"rank\"]}. {t.get(\"user_name\") or \"anon\"} | PnL:+\${float(t[\"pnl\"]):,.0f} | vol:\${float(t[\"volume\"])/1e6:.1f}M | {t[\"proxy_wallet\"]}') for t in json.load(sys.stdin)]"`
+
+**For leaderboard/trending/popular queries**: use all three sections above directly — skip Steps 1-3 in `leaderboard-discovery.md`. Only run fresh commands if the user asks for a different period (day/month/all) or wants more than 10 results.
 
 ## Intent Classification
 

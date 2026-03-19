@@ -16,31 +16,24 @@ Find what's trending on Polymarket — top traders, highest volume markets, and 
 
 ## Workflow
 
-### Step 1: Top Traders Leaderboard
+### Steps 1–3: Pre-loaded — No Tool Calls Needed
 
-```bash
-polymarket -o json data leaderboard --period all --order-by pnl --limit 20
-```
+The SKILL.md orchestrator pre-injects all three data sources at invocation time:
+
+- **Top Traders (week, by PnL)**: Already in context — includes `proxy_wallet` for whale-tracker follow-ups
+- **Trending Events (top 10 by volume)**: Already in context — includes slugs for deep-dive follow-ups
+- **Trending Markets (top 10 by volume)**: Already in context — individual binary markets
+
+**Use the pre-loaded data directly to build the discovery report. Skip to Step 4.**
+
+Only run fresh commands if the user requests:
+- A different leaderboard period (day/month/all): `polymarket -o json data leaderboard --period <period> --order-by pnl --limit 20`
+- More than 10 results: add `--limit 50` to the relevant command
+- A different sort order: `--order-by volume` or `--order-by markets_traded`
+- Builder/LP leaderboard: `polymarket -o json data builder-leaderboard --limit 20`
 
 Available `--period` values: `day`, `week`, `month`, `all`
 Available `--order-by` values: `pnl`, `volume`, `markets_traded`
-
-For builder/LP leaderboard:
-```bash
-polymarket -o json data builder-leaderboard --limit 20
-```
-
-### Step 2: Trending Events (by volume)
-
-```bash
-polymarket -o json events list --order volume --active true --limit 20
-```
-
-### Step 3: Trending Markets (by volume)
-
-```bash
-polymarket -o json markets list --order volumeNum --active true --limit 20
-```
 
 Note: `--order volumeNum` requires camelCase. `volume_num` causes 422 error.
 
@@ -62,7 +55,7 @@ Present two sections:
 
 ## Output Format
 
-- Present traders with their `name` or `pseudonym` fields
+- Present traders with their `user_name` field (falls back to "anon"); include `proxy_wallet` truncated for reference
 - Format PnL with +/- prefix and dollar amounts
 - Include volume as dollar amounts
 - Rank by the metric the user cares about (default: PnL for traders, volume for markets)
